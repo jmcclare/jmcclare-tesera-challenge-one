@@ -1,10 +1,13 @@
-# challenge-one
+# challenge-one #
 Simple Node developer challenge.
 
-### Goal
+
+## Goal ##
+
 Clone this repo and build a simple key/value store CLI using only the core Node API. Once you have finished the challenge, please deliver it by providing a GitHub repo, Dropbox, or Google Drive link.
 
-### Store API
+
+## Store API ##
 
 `$ store add mykey myvalue`
 
@@ -13,3 +16,10 @@ Clone this repo and build a simple key/value store CLI using only the core Node 
 `$ store get mykey`
 
 `$ store remove mykey`
+
+
+## Testing The Software ##
+
+Run the test suite with:
+
+`$ ./test`
