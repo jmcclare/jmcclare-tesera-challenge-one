@@ -185,7 +185,9 @@ runTest(
 
                     if (success)
                     {
-                      console.error('Test passed. Value of removed item1 not output by get.')
+                      console.log('Test passed.')
+                      console.log(' - Value of removed item1 not output by get.')
+                      console.log(' - Program exited with error.')
                     }
 
                     // clean up
