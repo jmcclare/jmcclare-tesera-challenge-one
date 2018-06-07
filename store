@@ -8,44 +8,47 @@ var dataFile = './store.json'
 
 var ignoreNext = false
 // Parse the command arguments.
-process.argv.forEach(function (val, index, array) {
-  //console.log(index + ': ' + val);
-
-  if (ignoreNext)
+process.argv.forEach(
+  function (val, index, array)
   {
-    ignoreNext = false
-    return
-  }
+    //console.log(index + ': ' + val);
 
-  if ( index > 1 )
-  {
-    switch(val)
+    if (ignoreNext)
     {
-      case 'help':
-        showHelp()
-        break
-      case '--data-file':
-        dataFile = process.argv[index + 1]
-        ignoreNext = true
-        break
-      case 'list':
-        list()
-        break
-      case 'add':
-        add(process.argv[index +1], process.argv[index +2])
-        break
-      case 'get':
-        get(process.argv[index +1])
-        break
-      case 'remove':
-        remove(process.argv[index +1])
-        break
-      default:
-        console.error('Invalid command or option: ' + val)
-        showHelp()
+      ignoreNext = false
+      return
+    }
+
+    if ( index > 1 )
+    {
+      switch(val)
+      {
+        case 'help':
+          showHelp()
+          break
+        case '--data-file':
+          dataFile = process.argv[index + 1]
+          ignoreNext = true
+          break
+        case 'list':
+          list()
+          break
+        case 'add':
+          add(process.argv[index +1], process.argv[index +2])
+          break
+        case 'get':
+          get(process.argv[index +1])
+          break
+        case 'remove':
+          remove(process.argv[index +1])
+          break
+        default:
+          console.error('Invalid command or option: ' + val)
+          showHelp()
+      }
     }
   }
-})
+)
 
 
 function getData()
