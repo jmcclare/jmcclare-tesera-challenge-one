@@ -15,7 +15,9 @@ function checkErr(err)
 
 function runTest(desc, commandParams, test)
 {
-  exec('./store ' + commandParams, function cb(err, stdout, stderr)
+  exec(
+    './store ' + commandParams,
+    function(err, stdout, stderr)
     {
       console.log()
       console.log(desc)
@@ -25,7 +27,10 @@ function runTest(desc, commandParams, test)
 }
 
 
-runTest('Testing help command...', 'help', function(err, stdout, stderr)
+runTest(
+  'Testing help command...',
+  'help',
+  function(err, stdout, stderr)
   {
     if (stdout.indexOf('Usage: ') != -1)
     {
@@ -40,7 +45,10 @@ runTest('Testing help command...', 'help', function(err, stdout, stderr)
 
 
 // Test listing items after adding.
-runTest('Testing add...', '--data-file test-data1.json add param1 "Value of param1"', function(err, stdout, stderr)
+runTest(
+  'Testing add...',
+  '--data-file test-data1.json add param1 "Value of param1"',
+  function(err, stdout, stderr)
   {
     checkErr(err)
     console.log('Test passed. No errors.')
