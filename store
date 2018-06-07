@@ -130,7 +130,7 @@ COMMANDS
     - remove value stored under KEY
   
   help
-    - print this help message and exit
+    - print this help text and exit
 
 OPTIONS
 
