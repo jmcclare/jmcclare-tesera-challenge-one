@@ -1,0 +1,197 @@
+#! /usr/bin/env node
+
+var exec = require('child_process').exec
+var fs = require('fs')
+
+
+function checkErr(err)
+{
+  if (err)
+  {
+    console.error('Exited with error code: ' + err.code)
+    console.log(stderr)
+  }
+}
+
+function runTest(desc, commandParams, test)
+{
+  exec('./store ' + commandParams, function cb(err, stdout, stderr)
+    {
+      console.log()
+      console.log(desc)
+      test(err, stdout, stderr)
+    }
+  )
+}
+
+
+runTest('Testing help command...', 'help', function(err, stdout, stderr)
+  {
+    if (stdout.indexOf('Usage: ') != -1)
+    {
+      console.log('Test passed.')
+    }
+    else
+    {
+      console.error('Test failed. Did not output text.')
+    }
+  }
+)
+
+
+// Test listing items after adding.
+runTest('Testing add...', '--data-file test-data1.json add param1 "Value of param1"', function(err, stdout, stderr)
+  {
+    checkErr(err)
+    console.log('Test passed. No errors.')
+
+    runTest('Should list added item...', '--data-file test-data1.json list', function(err, stdout, stderr)
+      {
+        checkErr(err)
+        if (stdout.indexOf("param1: Value of param1") != -1)
+        {
+          console.log('Test passed. New item shows up in list output.')
+        }
+        else
+        {
+          console.error('Test failed. New item does not show up in list.')
+        }
+
+        // clean up
+        if (fs.existsSync('./test-data1.json'))
+        {
+          fs.unlinkSync('./test-data1.json')
+        }
+      }
+    )
+  }
+)
+
+
+// Test getting items after adding.
+runTest(
+  'Adding item1...',
+  '--data-file test-data2.json add item1 "String value for item1"',
+  function(err, stdout, stderr)
+  {
+    runTest(
+      'Adding item2...',
+      '--data-file test-data2.json add item2 "String value for item2"',
+      function(err, stdout, stderr)
+      {
+        runTest(
+          'Test getting item2...',
+          '--data-file test-data2.json get item2',
+          function(err, stdout, stderr)
+          {
+            if (stdout == 'String value for item2')
+            {
+              console.log('Test passed. Value of item2 was output.')
+            }
+            else
+            {
+              console.log('Test failed. Value of item2 was not output.')
+            }
+
+            runTest(
+              'Test getting item1...',
+              '--data-file test-data2.json get item1',
+              function(err, stdout, stderr)
+              {
+                if (stdout == 'String value for item1')
+                {
+                  console.log('Test passed. Value of item1 was output.')
+                }
+                else
+                {
+                  console.log('Test failed. Value of item1 was not output.')
+                }
+
+                // clean up
+                if (fs.existsSync('./test-data2.json'))
+                {
+                  fs.unlinkSync('./test-data2.json')
+                }
+              }
+            )
+          }
+        )
+      }
+    )
+  }
+)
+
+
+// Test removing items after adding.
+runTest(
+  'Adding item1...',
+  '--data-file test-data3.json add item1 "String value for item1"',
+  function(err, stdout, stderr)
+  {
+    runTest(
+      'Adding item2...',
+      '--data-file test-data3.json add item2 "String value for item2"',
+      function(err, stdout, stderr)
+      {
+        runTest(
+          'Deleting item1...',
+          '--data-file test-data3.json remove item1',
+          function(err, stdout, stderr)
+          {
+            checkErr(err)
+            runTest(
+              'item1 should not be in list output...',
+              '--data-file test-data3.json list',
+              function(err, stdout, stdin)
+              {
+                if (stdout.indexOf("item1: String value for item1") == -1)
+                {
+                  console.log('Test passed. item1 not in list output.')
+                }
+                else
+                {
+                  console.error('Test failed. Removed item1 still in list output.')
+                }
+
+                runTest(
+                  'get item1 should produce no regular output and exit with error code...',
+                  '--data-file test-data3.json get item1',
+                  function(err, stdout, stdin)
+                  {
+                    var success = true
+                    if (stdout.indexOf('String value for item1') != -1)
+                    {
+                      success = false
+                      console.log('Test failed. Value of removed item1 output by get.')
+                    }
+                    if (stdout !== '')
+                    {
+                      success = false
+                      console.error('Test failed. Something was printed to regular output.')
+                    }
+                    if (err.code != 1)
+                    {
+                      success = false
+                      console.log('Test failed. Exit value was not 1.')
+                    }
+
+                    if (success)
+                    {
+                      console.error('Test passed. Value of removed item1 not output by get.')
+                    }
+
+                    // clean up
+                    if (fs.existsSync('./test-data3.json'))
+                    {
+                      fs.unlinkSync('./test-data3.json')
+                    }
+                  }
+                )
+              }
+            )
+          }
+        )
+      }
+    )
+  }
+)

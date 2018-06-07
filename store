@@ -1,0 +1,142 @@
+#! /usr/bin/env node
+
+var fs = require('fs')
+
+var printHelp = false
+var dataFile = './store.json'
+
+
+var ignoreNext = false
+// Parse the command arguments.
+process.argv.forEach(function (val, index, array) {
+  //console.log(index + ': ' + val);
+
+  if (ignoreNext)
+  {
+    ignoreNext = false
+    return
+  }
+
+  if ( index > 1 )
+  {
+    switch(val)
+    {
+      case 'help':
+        showHelp()
+        break
+      case '--data-file':
+        dataFile = process.argv[index + 1]
+        ignoreNext = true
+        break
+      case 'list':
+        list()
+        break
+      case 'add':
+        add(process.argv[index +1], process.argv[index +2])
+        break
+      case 'get':
+        get(process.argv[index +1])
+        break
+      case 'remove':
+        remove(process.argv[index +1])
+        break
+      default:
+        console.error('Invalid command or option: ' + val)
+        showHelp()
+    }
+  }
+})
+
+
+function getData()
+{
+  if (fs.existsSync(dataFile))
+  {
+    return JSON.parse(fs.readFileSync(dataFile, 'utf8'))
+  }
+  else
+  {
+    return {}
+  }
+}
+
+
+function add(key, value)
+{
+  var data = getData()
+  data[key] = value
+  fs.writeFileSync(dataFile, JSON.stringify(data))
+  process.exit()
+}
+
+
+function list()
+{
+  var data = getData()
+  for (var property in data) {
+      if (data.hasOwnProperty(property)) {
+        console.log(property + ': ' + data[property])
+      }
+  }
+  process.exit()
+}
+
+
+function get(key)
+{
+  var data = getData()
+  if (key in data)
+  {
+    // Output only the value with no newline.
+    process.stdout.write(data[key])
+  }
+  else
+  {
+    console.error('ERROR: No value stored for key ' + key)
+    process.exit(1)
+  }
+  process.exit()
+}
+
+
+function remove(key)
+{
+  var data = getData()
+  if (key in data)
+  {
+    delete data[key]
+    fs.writeFileSync(dataFile, JSON.stringify(data))
+  }
+  process.exit()
+}
+
+
+function showHelp()
+{
+  helpText = `Usage: store [OPTIONS] COMMAND [PARAMETERS..]
+
+COMMANDS
+
+  add KEY VALUE
+    - Create or overwrite value indexed by KEY
+
+  list
+    - list all stored values stored
+
+  get KEY
+    - get value stored under KEY
+
+  remove KEY
+    - remove value stored under KEY
+  
+  help
+    - print this help message and exit
+
+OPTIONS
+
+  --data-file
+    - path to file to store data in. Defaults to ./store.json`
+
+  console.log(helpText)
+  process.exit()
+}
